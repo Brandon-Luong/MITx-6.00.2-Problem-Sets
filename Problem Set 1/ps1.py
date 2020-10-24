@@ -54,7 +54,11 @@ def greedy_cow_transport(cows,limit=10):
     transported on a particular trip and the overall list containing all the
     trips
     """
-    # TODO: Your code here
+    total = []
+    cows_remain = len(cows)
+    while cows_remain > 0:
+        trip = []
+        break
     pass
 
 
@@ -108,7 +112,7 @@ lines to print the result of your problem.
 """
 
 cows = load_cows("ps1_cow_data.txt")
-limit=100
+limit=10
 print(cows)
 
 print(greedy_cow_transport(cows, limit))
