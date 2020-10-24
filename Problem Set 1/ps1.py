@@ -54,12 +54,25 @@ def greedy_cow_transport(cows,limit=10):
     transported on a particular trip and the overall list containing all the
     trips
     """
+    # Create list of tuples from cow dict.
+    cows_list = [(c, w) for c, w in cows.items()]
+    # Sort by weight, big -> small
+    cows_list.sort(reverse=True, key=lambda x: x[1])
     total = []
-    cows_remain = len(cows)
-    while cows_remain > 0:
+    while cows_list:
         trip = []
-        break
-    pass
+        available = limit
+        moved = []
+        for cow in cows_list:
+            if cow[1] <= available:
+                trip.append(cow[0])
+                moved.append(cow)
+                available -= cow[1]
+        # Remove cows from cows_list
+        for cow_tuple in moved:
+            cows_list.remove(cow_tuple)
+        total.append(trip)
+    return total
 
 
 # Problem 2
@@ -117,5 +130,3 @@ print(cows)
 
 print(greedy_cow_transport(cows, limit))
 print(brute_force_cow_transport(cows, limit))
-
-
