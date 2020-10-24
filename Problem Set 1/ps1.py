@@ -66,6 +66,8 @@ def greedy_cow_transport(cows,limit=10):
         for cow in cows_list:
             if cow[1] <= available:
                 trip.append(cow[0])
+                # Append cow to moved to remove later
+                # Removing now messes up iteration
                 moved.append(cow)
                 available -= cow[1]
         # Remove cows from cows_list
@@ -96,10 +98,26 @@ def brute_force_cow_transport(cows,limit=10):
     transported on a particular trip and the overall list containing all the
     trips
     """
-    # TODO: Your code here
-    pass
+    cows_list = [c for c in cows]
+    best_partition = []
+    best_length = len(cows_list)
+    for partition in get_partitions(cows_list):
+        for trip in partition:
+            weight = 0
+            overweight = False
+            for cow in trip:
+                weight += cows[cow]
+                if weight > limit:
+                    overweight = True
+                    break
+            if overweight:
+                break
+        if not overweight and len(partition) <= best_length:
+            best_length = len(partition)
+            best_partition = partition
+    return best_partition
 
-        
+
 # Problem 3
 def compare_cow_transport_algorithms():
     """
@@ -114,8 +132,16 @@ def compare_cow_transport_algorithms():
     Returns:
     Does not return anything.
     """
-    # TODO: Your code here
-    pass
+    start = time.time()
+    print(len(greedy_cow_transport(cows, limit)))
+    end = time.time()
+    print(end - start)
+
+    start = time.time()
+    print(len(brute_force_cow_transport(cows, limit)))
+    end = time.time()
+    print(end - start)
+
 
 
 """
@@ -126,7 +152,8 @@ lines to print the result of your problem.
 
 cows = load_cows("ps1_cow_data.txt")
 limit=10
-print(cows)
+# print(cows)
 
-print(greedy_cow_transport(cows, limit))
-print(brute_force_cow_transport(cows, limit))
+# print(greedy_cow_transport(cows, limit))
+# print(brute_force_cow_transport(cows, limit))
+compare_cow_transport_algorithms()
