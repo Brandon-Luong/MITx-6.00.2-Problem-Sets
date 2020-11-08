@@ -237,28 +237,6 @@ class StandardRobot(Robot):
         else:
             self.setRobotDirection(random.randrange(360))
 
-# random.seed(0)
-# A = RectangularRoom(4,2)
-# R = StandardRobot(A, 2)
-# a = [Position(1,1), Position(0,0), Position(0,1)]
-# for pos in a:
-#     A.cleanTileAtPosition(pos)
-# b = Position(2,2)
-
-
-# print('dir', R.direction_state)
-# print('pos', R.position_state)
-# print('cleaned tiles =', A.getNumCleanedTiles())
-# # print(A.tiles)
-# R.setRobotPosition(b)
-# print('new pos =', R.getRobotPosition())
-# R.setRobotDirection(100)
-# print('new dir =', R.getRobotDirection())
-# R.updatePositionAndClean()
-# print('new pos =', R.getRobotPosition())
-# print('new dir =', R.getRobotDirection())
-# print('cleaned tiles =', A.getNumCleanedTiles())
-
 # Uncomment this line to see your implementation of StandardRobot in action!
 # testRobotMovement(StandardRobot, RectangularRoom)
 
@@ -282,10 +260,31 @@ def runSimulation(num_robots, speed, width, height, min_coverage, num_trials,
     robot_type: class of robot to be instantiated (e.g. StandardRobot or
                 RandomWalkRobot)
     """
-    raise NotImplementedError
+    def single_trial(num_robots, speed, width, height, min_coverage, robot_type):
+        test_chamber = RectangularRoom(width, height)
+        all_robots = [robot_type(test_chamber, speed) for i in range(num_robots)]
+        percent_clean = 1/test_chamber.getNumTiles()
+        clock_ticks = 0
+        while percent_clean < min_coverage:
+            for robot in all_robots:
+                robot.updatePositionAndClean()
+            clock_ticks += 1
+            percent_clean = test_chamber.getNumCleanedTiles() / test_chamber.getNumTiles()
+        return clock_ticks
+    
+    mean = 0
+    for i in range(num_trials):
+        mean += single_trial(num_robots, speed, width, height, min_coverage, robot_type)
+    return mean / num_trials
+
 
 # Uncomment this line to see how much your simulation takes on average
-##print(runSimulation(1, 1.0, 10, 10, 0.75, 30, StandardRobot))
+# print(runSimulation(1, 1.0, 10, 10, 0.75, 30, StandardRobot))
+# print(runSimulation(1, 1.0, 5, 5, 1.0, 100, StandardRobot))
+# print(runSimulation(1, 1.0, 10, 10, 0.75, 100, StandardRobot))
+# print(runSimulation(1, 1.0, 10, 10, 0.90, 100, StandardRobot))
+# print(runSimulation(1, 1.0, 20, 20, 1.0, 100, StandardRobot))
+# print(runSimulation(3, 1.0, 20, 20, 1.0, 100, StandardRobot))
 
 
 # === Problem 5
