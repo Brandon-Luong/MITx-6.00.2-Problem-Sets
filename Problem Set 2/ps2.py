@@ -277,7 +277,6 @@ def runSimulation(num_robots, speed, width, height, min_coverage, num_trials,
         mean += single_trial(num_robots, speed, width, height, min_coverage, robot_type)
     return mean / num_trials
 
-
 # Uncomment this line to see how much your simulation takes on average
 # print(runSimulation(1, 1.0, 10, 10, 0.75, 30, StandardRobot))
 # print(runSimulation(1, 1.0, 5, 5, 1.0, 100, StandardRobot))
@@ -300,8 +299,19 @@ class RandomWalkRobot(Robot):
         Move the robot to a new position and mark the tile it is on as having
         been cleaned.
         """
-        raise NotImplementedError
+        new_position = self.position_state.getNewPosition(self.direction_state, self.speed)
+        if self.room.isPositionInRoom(new_position):
+            self.setRobotPosition(new_position)
+            self.room.cleanTileAtPosition(new_position)
+        self.setRobotDirection(random.randrange(360))
 
+# testRobotMovement(RandomWalkRobot, RectangularRoom)
+# print(runSimulation(1, 1.0, 10, 10, 0.75, 30, RandomWalkRobot))
+# print(runSimulation(1, 1.0, 5, 5, 1.0, 100, RandomWalkRobot))
+# print(runSimulation(1, 1.0, 10, 10, 0.75, 100, RandomWalkRobot))
+# print(runSimulation(1, 1.0, 10, 10, 0.90, 100, RandomWalkRobot))
+# print(runSimulation(1, 1.0, 20, 20, 1.0, 100, RandomWalkRobot))
+# print(runSimulation(3, 1.0, 20, 20, 1.0, 100, RandomWalkRobot))
 
 def showPlot1(title, x_label, y_label):
     """
@@ -322,6 +332,7 @@ def showPlot1(title, x_label, y_label):
     # pylab.ylabel(y_label)
     # pylab.show()
 
+# showPlot1('Time It Takes 1 - 10 Robots To Clean 80% Of A Room', 'Number of Robots', 'Time-steps')
     
 def showPlot2(title, x_label, y_label):
     """
@@ -344,6 +355,8 @@ def showPlot2(title, x_label, y_label):
     # pylab.ylabel(y_label)
     # pylab.show()
     
+# showPlot2('Time It Takes Two Robots To Clean 80% Of Variously Shaped Rooms', 'Aspect Ratio', 'Time-steps')
+# Note it should actually mean sized rooms not shaped rooms
 
 # === Problem 6
 # NOTE: If you are running the simulation, you will have to close it 
