@@ -2,6 +2,7 @@
 
 import random
 import pylab
+# from ps3b_precompiled_38 import *
 
 ''' 
 Begin helper code
@@ -155,29 +156,6 @@ class Patient(object):
         return len(self.viruses)
 
 
-random.seed(0)
-virus_population = [SimpleVirus(random.random(), random.random()) for i in range(10)]
-virus_population_represent = [(virus.getMaxBirthProb(), virus.getClearProb()) for virus in virus_population]
-virus_population_clear = [virus.doesClear() for virus in virus_population]
-# print(virus_population_represent)
-print(virus_population_clear)
-
-patient_0 = Patient(virus_population, 100)
-print(patient_0.update())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #
 # PROBLEM 2
 #
@@ -196,10 +174,31 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
     clearProb: Maximum clearance probability (a float between 0-1)
     numTrials: number of simulation runs to execute (an integer)
     """
+    def one_trial(numViruses, maxPop, maxBirthProb, clearProb):
+        virus_population = [SimpleVirus(maxBirthProb, clearProb)]*numViruses
+        patient = Patient(virus_population, maxPop)
+        for step in range(300):
+            viruses_remaining = patient.update()
+            virus_population_average[step] += viruses_remaining
 
-    # TODO
+    virus_population_average = [0]*300
+    for trial in range(numTrials):
+        one_trial(numViruses, maxPop, maxBirthProb, clearProb)
+    virus_population_average[:] = [virus_population/numTrials for virus_population in virus_population_average]
+    return virus_population_average
 
+    # Plotting
+    # pylab.plot(virus_population_average, label = "SimpleVirus")
+    # pylab.title("SimpleVirus simulation")
+    # pylab.xlabel("Time Steps")
+    # pylab.ylabel("Average Virus Population")
+    # pylab.legend(loc = "best")
+    # pylab.show()
 
+# print(simulationWithoutDrug(100, 1000, 0.1, 0.05, 100))
+# avg = simulationWithoutDrug(100, 1000, 0.1, 0.05, 100)
+# stops_growing = [i for i, num in enumerate(avg) if abs(num-498) <= 1]
+# print(stops_growing)
 
 #
 # PROBLEM 3
