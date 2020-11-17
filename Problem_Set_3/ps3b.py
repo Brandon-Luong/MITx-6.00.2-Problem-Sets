@@ -108,13 +108,11 @@ class Patient(object):
         """
         return self.viruses
 
-
     def getMaxPop(self):
         """
         Returns the max population.
         """
         return self.max_population
-
 
     def getTotalPop(self):
         """
@@ -184,16 +182,18 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
     for trial in range(numTrials):
         one_trial(numViruses, maxPop, maxBirthProb, clearProb)
     virus_population_average[:] = [virus_population/numTrials for virus_population in virus_population_average]
-    return virus_population_average
 
     # Plotting
-    # pylab.plot(virus_population_average, label = "SimpleVirus")
-    # pylab.title("SimpleVirus simulation")
-    # pylab.xlabel("Time Steps")
-    # pylab.ylabel("Average Virus Population")
-    # pylab.legend(loc = "best")
-    # pylab.show()
+    pylab.plot(virus_population_average, label = "SimpleVirus")
+    pylab.title("SimpleVirus simulation")
+    pylab.xlabel("Time Steps")
+    pylab.ylabel("Average Virus Population")
+    pylab.legend(loc = "best")
+    pylab.show()
 
+    # return virus_population_average
+
+# simulationWithoutDrug(100, 1000, 0.1, 0.05, 100)
 # print(simulationWithoutDrug(100, 1000, 0.1, 0.05, 100))
 # avg = simulationWithoutDrug(100, 1000, 0.1, 0.05, 100)
 # stops_growing = [i for i, num in enumerate(avg) if abs(num-498) <= 1]
@@ -301,7 +301,10 @@ class ResistantVirus(SimpleVirus):
         """
         # Check drug resistance
         for drug in activeDrugs:
-            if not self.drug_resistances[drug]:
+            try:
+                if not self.drug_resistances[drug]:
+                    raise NoChildException
+            except KeyError:
                 raise NoChildException
         
         reproduce_prob = self.max_birth_prob * (1-popDensity)
@@ -373,12 +376,12 @@ class TreatedPatient(Patient):
         """
         viruses_immune_count = 0
         for resist_virus in self.viruses:
-            virus_immune = True
+            status = None
             for drug in drugResist:
-                if not resist_virus.isResistantTo(drug):
-                    virus_immune = False
+                status = resist_virus.isResistantTo(drug)
+                if not status:
                     break
-            if virus_immune:
+            if status:
                 viruses_immune_count += 1
         return viruses_immune_count
 
@@ -415,17 +418,6 @@ class TreatedPatient(Patient):
         self.viruses.extend(offspring)
         return len(self.viruses)
 
-random.seed(0)
-virus_pop = [ResistantVirus(0.9999, 0.00001, {'drug1': True, 'drug2': True}, 0.1)]*6
-virus_pop_add = [ResistantVirus(0.999, 0.0001, {'drug1':True, 'drug2': True}, 0.1)]*5
-virus_pop.extend(virus_pop_add)
-
-patient = TreatedPatient(virus_pop, 3000000)
-patient.addPrescription('drug1')
-print(patient.getPrescriptions())
-# print(patient.getResistPop(['drug1', 'drug2']))
-print(patient.update())
-
 
 #
 # PROBLEM 5
@@ -452,5 +444,44 @@ def simulationWithDrug(numViruses, maxPop, maxBirthProb, clearProb, resistances,
     numTrials: number of simulation runs to execute (an integer)
     
     """
+    def one_trial(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb):
+        virus_population = [ResistantVirus(maxBirthProb, clearProb, resistances, mutProb)]*numViruses
+        patient = TreatedPatient(virus_population, maxPop)
+        for step in range(150):
+            viruses_remaining = patient.update()
+            virus_population_average[step] += viruses_remaining
+            virus_resist_count = patient.getResistPop(['guttagonol'])
+            virus_resistant_average[step] += virus_resist_count
+        patient.addPrescription('guttagonol')
+        for step in range(150, 300):
+            viruses_remaining = patient.update()
+            virus_population_average[step] += viruses_remaining
+            virus_resist_count = patient.getResistPop(['guttagonol'])
+            virus_resistant_average[step] += virus_resist_count
 
-    # TODO
+    virus_population_average = [0]*300
+    virus_resistant_average = [0]*300
+    for trial in range(numTrials):
+        one_trial(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb)
+    virus_population_average[:] = [virus_population/numTrials for virus_population in virus_population_average]
+    virus_resistant_average[:] = [virus_resist/numTrials for virus_resist in virus_resistant_average]
+
+    # Plotting
+    pylab.plot(virus_population_average, label = "SimpleVirus")
+    pylab.plot(virus_resistant_average, label = "ResistantVirus")
+    pylab.title("ResistantVirus simulation")
+    pylab.xlabel("Time Steps")
+    pylab.ylabel("Average Virus Population")
+    pylab.legend(loc = "best")
+    pylab.show()
+
+    # return virus_population_average, virus_resistant_average
+
+
+simulationWithDrug(100, 1000, 0.1, 0.05, {'guttagonol': False}, 0.005, 100)
+# total, resist = simulationWithDrug(100, 1000, 0.1, 0.05, {'guttagonol': False}, 0.005, 100)
+# total, resist = simulationWithDrug(1, 10, 1.0, 0.0, {}, 1.0, 5)
+# total, resist = simulationWithDrug(75, 100, .8, 0.1, {"guttagonol": True}, 0.8, 1)
+# print(total)
+# print()
+# print(resist)
