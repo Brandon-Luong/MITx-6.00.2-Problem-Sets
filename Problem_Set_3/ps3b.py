@@ -89,7 +89,6 @@ class Patient(object):
     Representation of a simplified patient. The patient does not take any drugs
     and his/her virus populations have no drug resistance.
     """    
-
     def __init__(self, viruses, maxPop):
         """
         Initialization function, saves the viruses and maxPop parameters as
@@ -207,7 +206,6 @@ class ResistantVirus(SimpleVirus):
     """
     Representation of a virus which can have drug resistance.
     """   
-
     def __init__(self, maxBirthProb, clearProb, resistances, mutProb):
         """
         Initialize a ResistantVirus instance, saves all parameters as attributes
@@ -317,16 +315,6 @@ class ResistantVirus(SimpleVirus):
         else:
             raise NoChildException
 
-# random.seed(0)
-# # virus = ResistantVirus(1.0, 0, {}, 0)
-# # patient = Patient([virus], 10)
-# # print(patient.update())
-# # print(virus.reproduce(0.1))
-# A = ResistantVirus(0.9999, 0.2, {'drug1': True, 'drug2': False, 'drug3': True}, 0.6)
-# print(A.reproduce(0.1, ['drug1']))
-# # B = A.reproduce(0.1, ['drug1', 'drug3'])
-# # print(B.getResistances())
-
 
 #
 # PROBLEM 4
@@ -336,7 +324,6 @@ class TreatedPatient(Patient):
     Representation of a patient. The patient is able to take drugs and his/her
     virus population can acquire resistance to the drugs he/she takes.
     """
-
     def __init__(self, viruses, maxPop):
         """
         Initialization function, saves the viruses and maxPop parameters as
@@ -348,9 +335,8 @@ class TreatedPatient(Patient):
 
         maxPop: The  maximum virus population for this patient (an integer)
         """
-
-        # TODO
-
+        Patient.__init__(self, viruses, maxPop)
+        self.drugs_taken = []
 
     def addPrescription(self, newDrug):
         """
@@ -362,9 +348,8 @@ class TreatedPatient(Patient):
 
         postcondition: The list of drugs being administered to a patient is updated
         """
-
-        # TODO
-
+        if newDrug not in self.drugs_taken:
+            self.drugs_taken.append(newDrug)
 
     def getPrescriptions(self):
         """
@@ -373,9 +358,7 @@ class TreatedPatient(Patient):
         returns: The list of drug names (strings) being administered to this
         patient.
         """
-
-        # TODO
-
+        return self.drugs_taken
 
     def getResistPop(self, drugResist):
         """
@@ -388,9 +371,16 @@ class TreatedPatient(Patient):
         returns: The population of viruses (an integer) with resistances to all
         drugs in the drugResist list.
         """
-
-        # TODO
-
+        viruses_immune_count = 0
+        for resist_virus in self.viruses:
+            virus_immune = True
+            for drug in drugResist:
+                if not resist_virus.isResistantTo(drug):
+                    virus_immune = False
+                    break
+            if virus_immune:
+                viruses_immune_count += 1
+        return viruses_immune_count
 
     def update(self):
         """
@@ -412,9 +402,29 @@ class TreatedPatient(Patient):
         returns: The total virus population at the end of the update (an
         integer)
         """
+        self.viruses[:] = [resist_virus for resist_virus in self.viruses if not resist_virus.doesClear()]
+        population_density = len(self.viruses) / self.max_population
+        offspring = []
+        for resist_virus in self.viruses:
+            try:
+                new_resist_virus = resist_virus.reproduce(population_density, self.drugs_taken)
+            except NoChildException:
+                continue
+            else:
+                offspring.append(new_resist_virus)
+        self.viruses.extend(offspring)
+        return len(self.viruses)
 
-        # TODO
+random.seed(0)
+virus_pop = [ResistantVirus(0.9999, 0.00001, {'drug1': True, 'drug2': True}, 0.1)]*6
+virus_pop_add = [ResistantVirus(0.999, 0.0001, {'drug1':True, 'drug2': True}, 0.1)]*5
+virus_pop.extend(virus_pop_add)
 
+patient = TreatedPatient(virus_pop, 3000000)
+patient.addPrescription('drug1')
+print(patient.getPrescriptions())
+# print(patient.getResistPop(['drug1', 'drug2']))
+print(patient.update())
 
 
 #
