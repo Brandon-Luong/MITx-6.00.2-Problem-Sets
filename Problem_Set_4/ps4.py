@@ -177,26 +177,39 @@ def evaluate_models_on_training(x, y, models):
     Returns:
         None
     """
-    # TODO
-    pass
+    year = np.array(x)
+    temp = np.array(y)
+    pylab.plot(year, temp)
+    for model in models:
+        temp_est = np.polyval(model, x)
+        r_square = r_squared(temp, temp_est)
+        print(r_square)
+
+        # Plotting
+        # pylab.plot(year, temp, 'bo', label='Best fit')
+        # pylab.title('This thing')
+        # pylab.xlabel('Year')
+        # pylab.ylabel('Temperature')
+        # pylab.legend(loc ='best')
 
 
-# ### Begining of program
-# raw_data = Climate('data.csv')
+### Begining of program
+raw_data = Climate('data.csv')
 
-# # Problem 3
-# y = []
-# x = INTERVAL_1
-# for year in INTERVAL_1:
-#     y.append(raw_data.get_daily_temp('BOSTON', 1, 10, year))
-# models = generate_models(x, y, [1])
-# evaluate_models_on_training(x, y, models)
+# Problem 3
+y = []
+x = INTERVAL_1
+for year in INTERVAL_1:
+    y.append(raw_data.get_daily_temp('BOSTON', 1, 10, year))
+models = generate_models(x, y, [1])
+evaluate_models_on_training(x, y, models)
 
 
-# # Problem 4: FILL IN MISSING CODE TO GENERATE y VALUES
-# x1 = INTERVAL_1
-# x2 = INTERVAL_2
-# y = []
-# # MISSING LINES
-# models = generate_models(x, y, [1])    
-# evaluate_models_on_training(x, y, models)
+# Problem 4: FILL IN MISSING CODE TO GENERATE y VALUES
+x1 = INTERVAL_1
+x2 = INTERVAL_2
+y = []
+for year in INTERVAL_1:
+    y.append(np.mean(raw_data.get_yearly_temp('BOSTON', year)))
+models = generate_models(x, y, [1])    
+evaluate_models_on_training(x, y, models)
